@@ -277,11 +277,6 @@
     .pd-feat-item::before { content: '✓'; min-width: 22px; height: 22px; border-radius: 50%; background: #d1fae5; color: #059669; font-size: .72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .pd-add-btn { width: 100%; padding: .95rem; background: var(--rose); color: white; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: all .2s; margin-top: auto; }
     .pd-add-btn:hover { background: var(--rose-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(193,59,90,.36); }
-    @media (max-width: 660px) {
-      .pd-modal-inner { grid-template-columns: 1fr; }
-      .pd-gallery { border-radius: 28px 28px 0 0; padding: 1.5rem 1.25rem; }
-      .pd-info { padding: 1.4rem 1.25rem 1.5rem; }
-    }
 
     /* ── TOAST ── */
     #toast-zone { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 400; display: flex; flex-direction: column; gap: .5rem; align-items: center; pointer-events: none; }
@@ -312,12 +307,52 @@
       .features-inner { grid-template-columns: repeat(2,1fr); }
       .promo-inner { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
+      .pd-modal-inner { grid-template-columns: 1fr; max-width: 560px; }
+      .pd-gallery { border-radius: 28px 28px 0 0; padding: 1.5rem; }
+      .pd-main-img { aspect-ratio: 4/3; }
+      .pd-info { padding: 1.5rem 1.75rem 2rem; }
+      .order-modal-inner { max-width: 500px; }
     }
     @media (max-width: 580px) {
       .cart-sidebar { width: 100%; }
       .footer-grid { grid-template-columns: 1fr; }
       .promo-packages { grid-template-columns: 1fr; }
       .cat-tabs { flex-wrap: wrap; border-radius: 1rem; }
+      /* Product detail modal — bottom sheet on mobile */
+      .pd-modal { padding: 0; align-items: flex-end; }
+      .pd-modal-inner { max-width: 100%; max-height: 92vh; border-radius: 22px 22px 0 0; grid-template-columns: 1fr; overflow-y: auto; }
+      .pd-gallery { border-radius: 0; padding: 1.1rem 1.1rem .6rem; }
+      .pd-main-img { aspect-ratio: unset; height: 180px; }
+      .pd-thumbs { gap: .45rem; }
+      .pd-thumb { width: 48px; height: 48px; }
+      .pd-info { padding: 1rem 1.1rem 1.4rem; }
+      .pd-prod-title { font-size: 1.3rem; }
+      .pd-prod-desc { font-size: .84rem; margin-bottom: 1rem; }
+      .pd-features-list { margin-bottom: 1.1rem; }
+      .pd-feat-item { font-size: .8rem; }
+      .pd-close-btn { top: .75rem; right: .75rem; }
+      /* Order modal — bottom sheet on mobile */
+      .order-modal { padding: 0; align-items: flex-end; }
+      .order-modal-inner { max-width: 100%; border-radius: 22px 22px 0 0; max-height: 92vh; overflow-y: auto; }
+      .om-head { padding: 1.2rem 1.25rem 1rem; }
+      .om-body { padding: 1rem 1.25rem 1.5rem; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      /* Header */
+      .logo { font-size: 1.4rem; }
+      /* Products grid */
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+      .product-img { height: 160px; }
+      .product-name { font-size: .9rem; }
+      /* Hero */
+      .hero-section { padding: 3rem 1.25rem 3.5rem; }
+      .hero-title { font-size: 2.2rem; }
+      .hero-sub { font-size: .9rem; }
+      /* Sections */
+      .section-wrap { padding: 3rem 1.25rem; }
+      .section-h2 { font-size: 2rem; }
+      .features-inner { grid-template-columns: 1fr 1fr; gap: 1.25rem; padding: 2.5rem 1.25rem; }
+      .promo-inner { padding: 3rem 1.25rem; }
+      footer { padding: 3rem 1.25rem 1.5rem; }
     }
   </style>
 </head>
@@ -928,7 +963,9 @@ function openDetail(id) {
     </div>`
   ).join('');
   document.getElementById('pd-add-btn').onclick = () => { addToCart(id); closeDetail(); };
-  document.getElementById('pd-modal').classList.add('open');
+  const modal = document.getElementById('pd-modal');
+  modal.classList.add('open');
+  modal.querySelector('.pd-modal-inner').scrollTop = 0;
   document.body.style.overflow = 'hidden';
 }
 
