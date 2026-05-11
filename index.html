@@ -115,8 +115,8 @@
 
     /* ── PRODUCT GRID ── */
     .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px,1fr)); gap: 1.5rem; }
-    .product-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); transition: transform .35s cubic-bezier(.34,1.2,.64,1), box-shadow .35s, border-color .35s; }
-    .product-card:hover { transform: translateY(-6px); box-shadow: 0 18px 52px rgba(0,0,0,.1); }
+    .product-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); transition: transform .35s cubic-bezier(.34,1.2,.64,1), box-shadow .35s, border-color .35s; cursor: pointer; }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 18px 52px rgba(0,0,0,.1); border-color: var(--accent); }
 
     /* Product image area */
     .product-img { width: 100%; height: 220px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
@@ -251,6 +251,37 @@
     .btn-siparis { width: 100%; padding: 1rem; background: var(--rose); color: white; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: .5rem; transition: all .2s; }
     .btn-siparis:hover:not(:disabled) { background: var(--rose-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(193,59,90,.36); }
     .btn-siparis:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── PRODUCT DETAIL MODAL ── */
+    .pd-modal { position: fixed; inset: 0; z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .pd-modal.open { opacity: 1; pointer-events: all; }
+    .pd-modal-bg { position: absolute; inset: 0; background: rgba(20,10,15,.62); backdrop-filter: blur(8px); }
+    .pd-modal-inner { position: relative; background: white; border-radius: 28px; width: 100%; max-width: 900px; max-height: 92vh; overflow-y: auto; box-shadow: 0 40px 100px rgba(0,0,0,.28); transform: translateY(30px) scale(.96); transition: transform .4s cubic-bezier(.34,1.3,.64,1); display: grid; grid-template-columns: 1fr 1fr; }
+    .pd-modal.open .pd-modal-inner { transform: translateY(0) scale(1); }
+    .pd-close-btn { position: absolute; top: 1.2rem; right: 1.2rem; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.95); border: 1.5px solid var(--border); cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all .2s; display: flex; align-items: center; justify-content: center; z-index: 10; }
+    .pd-close-btn:hover { background: var(--rose); color: white; border-color: var(--rose); }
+    .pd-gallery { background: var(--ivory); border-radius: 28px 0 0 28px; padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .pd-main-img { width: 100%; aspect-ratio: 1; border-radius: 18px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .pd-main-img img { width: 100%; height: 100%; object-fit: contain; padding: 1.2rem; transition: opacity .18s; }
+    .pd-thumbs { display: flex; gap: .55rem; overflow-x: auto; padding-bottom: .3rem; scrollbar-width: thin; }
+    .pd-thumb { width: 58px; height: 58px; border-radius: 10px; overflow: hidden; border: 2px solid transparent; cursor: pointer; flex-shrink: 0; background: white; transition: border-color .2s; }
+    .pd-thumb.active { border-color: var(--rose); }
+    .pd-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+    .pd-info { padding: 2.2rem 2rem 2rem 1.5rem; display: flex; flex-direction: column; }
+    .pd-cat-badge { display: inline-flex; align-items: center; gap: .3rem; background: var(--blush-light); color: var(--rose); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: .28rem .75rem; border-radius: 2rem; margin-bottom: .9rem; width: fit-content; }
+    .pd-prod-title { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 700; color: var(--dark); line-height: 1.2; margin-bottom: .35rem; }
+    .pd-prod-pack { font-size: .88rem; color: var(--text-muted); margin-bottom: 1.3rem; font-weight: 500; }
+    .pd-prod-desc { font-size: .88rem; line-height: 1.8; color: var(--text); margin-bottom: 1.4rem; }
+    .pd-features-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.6rem; flex: 1; }
+    .pd-feat-item { display: flex; align-items: center; gap: .65rem; font-size: .83rem; color: var(--dark); }
+    .pd-feat-item::before { content: '✓'; min-width: 22px; height: 22px; border-radius: 50%; background: #d1fae5; color: #059669; font-size: .72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .pd-add-btn { width: 100%; padding: .95rem; background: var(--rose); color: white; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: all .2s; margin-top: auto; }
+    .pd-add-btn:hover { background: var(--rose-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(193,59,90,.36); }
+    @media (max-width: 660px) {
+      .pd-modal-inner { grid-template-columns: 1fr; }
+      .pd-gallery { border-radius: 28px 28px 0 0; padding: 1.5rem 1.25rem; }
+      .pd-info { padding: 1.4rem 1.25rem 1.5rem; }
+    }
 
     /* ── TOAST ── */
     #toast-zone { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 400; display: flex; flex-direction: column; gap: .5rem; align-items: center; pointer-events: none; }
@@ -495,6 +526,31 @@
     </div>
   </div>
 </div>
+<!-- Product Detail Modal -->
+<div class="pd-modal" id="pd-modal">
+  <div class="pd-modal-bg" onclick="closeDetail()"></div>
+  <div class="pd-modal-inner">
+    <button class="pd-close-btn" onclick="closeDetail()">✕</button>
+    <div class="pd-gallery">
+      <div class="pd-main-img" id="pd-main-img-wrap">
+        <img id="pd-main-photo" src="" alt="">
+      </div>
+      <div class="pd-thumbs" id="pd-thumbs"></div>
+    </div>
+    <div class="pd-info">
+      <span class="pd-cat-badge" id="pd-cat-badge"></span>
+      <div class="pd-prod-title" id="pd-prod-title"></div>
+      <div class="pd-prod-pack" id="pd-prod-pack"></div>
+      <div class="pd-prod-desc" id="pd-prod-desc"></div>
+      <div class="pd-features-list" id="pd-features-list"></div>
+      <button class="pd-add-btn" id="pd-add-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Sepete Ekle
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-zone"></div>
 
 <script>
@@ -556,14 +612,14 @@ function renderProducts() {
   const t = TABS[activeTab];
   const accentVar = t.accent.replace('--','');
   document.getElementById('products-grid').innerHTML = list.map(p => `
-    <div class="product-card">
+    <div class="product-card" onclick="openDetail(${p.id})">
       <div class="product-img ${p.cat}">
         <img class="product-photo" src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">
         <div class="product-badges">
           <span class="badge badge-kargo">Kargo Bedava</span>
           <span class="badge badge-${p.cat}">${BADGE[p.cat]}</span>
         </div>
-        <button class="fav-btn" onclick="toggleFav(this)">
+        <button class="fav-btn" onclick="event.stopPropagation();toggleFav(this)">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
       </div>
@@ -571,7 +627,7 @@ function renderProducts() {
         <div class="product-name">${p.name}</div>
         <div class="product-meta">${p.pack} · ${p.adet} adet</div>
         <div class="product-footer">
-          <button class="add-btn" onclick="addToCart(${p.id})">
+          <button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id})">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
@@ -749,6 +805,145 @@ function toast(msg) {
   el.className = 'toast'; el.textContent = msg;
   zone.appendChild(el);
   setTimeout(() => { el.style.animation = 'toastIn .3s ease reverse both'; setTimeout(() => el.remove(), 320); }, 2600);
+}
+
+// ── PRODUCT DETAILS ──
+const PED_FEATS = ['%0 Parfüm ve Klor','Hipolalerjenik formül','Pamuksu üst yüzey','Anında kuruluk sağlayan emici tabaka','Kötü kokuları hapseden yapı','Anatomik yapıya uygun tasarım','Tekli kumaş paketler'];
+const PED_GAL   = [
+  'https://online.giggles.com.tr/storage/urunler/Hijyenik%20Ped/ladygiggles-%C3%B6zellik..jpg',
+  'https://online.giggles.com.tr/storage/urunler/Hijyenik%20Ped/ladygiggles-%C3%B6zellik.jpg',
+  'https://online.giggles.com.tr/storage/urunler/Hijyenik%20Ped/ladygiggles-%C3%B6zellik1.jpg',
+  'https://online.giggles.com.tr/storage/urunler/Hijyenik%20Ped/ladygiggles-%C3%B6zellik2.jpg',
+  'https://online.giggles.com.tr/storage/urunler/Hijyenik%20Ped/ladygiggles-%C3%B6zellik3.jpg',
+  'https://online.giggles.com.tr/storage/urunler/Hijyenik%20Ped/ladygiggles-%C3%B6zellik8.jpg',
+];
+const MENDIL_FEATS = ['Sirke + Karbonat + Limon Yağı içerir','XXL ebat — geniş yüzeyleri tek hamlede temizler','İz ve tüy bırakmaz','Antistatik yapı — toz birikmesini önler','Hızlı kurur, nem bırakmaz','Flip-top kapak — son mendile kadar taze','Durulamaya gerek yok'];
+const SABUN_GAL = [
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-beyaz%20sabun/yt-beyaz%20sabun-1.li.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-beyaz%20sabun/y%C3%BCzey%20temizleme-beyazsabun01.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-beyaz%20sabun/y%C3%BCzey%20temizleme-beyazsabun02.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-beyaz%20sabun/y%C3%BCzey%20temizleme-beyazsabun03.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-beyaz%20sabun/y%C3%BCzey%20temizleme-beyazsabun04.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-beyaz%20sabun/y%C3%BCzey%20temizleme-beyazsabun05.jpg',
+];
+const CICEK_GAL = [
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-%C3%A7i%C3%A7ek%20bah%C3%A7esi/yt-%C3%A7i%C3%A7ekbah%C3%A7esi-1.li.jpg',
+  'https://online.giggles.com.tr/thumbs/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-%C3%A7i%C3%A7ek%20bah%C3%A7esi/yt-%C3%A7i%C3%A7ekbah%C3%A7esi-1_200_300.l%C4%B1_200_300.jpg',
+  'https://online.giggles.com.tr/thumbs/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-%C3%A7i%C3%A7ek%20bah%C3%A7esi/yt-%C3%A7i%C3%A7ekbah%C3%A7esi-3_200_300.l%C3%BC_200_300.jpg',
+  'https://online.giggles.com.tr/thumbs/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-%C3%A7i%C3%A7ek%20bah%C3%A7esi/yt-%C3%A7i%C3%A7ekbah%C3%A7esi-6_200_300.l%C4%B1_200_300.jpg',
+];
+const OKYAN_GAL = [
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-okyanus%20esintisi/yt-okyanus%20esintisi-1.li.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-okyanus%20esintisi/y%C3%BCzey%20temizleme-okyanus%20esintisi01.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-okyanus%20esintisi/y%C3%BCzey%20temizleme-okyanus%20esintisi02.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-okyanus%20esintisi/y%C3%BCzey%20temizleme-okyanus%20esintisi03.jpg',
+  'https://online.giggles.com.tr/storage/urunler/islak-havlu/Giggles%20XXL%20%C4%B0z%20B%C4%B1rakmayan%20Y%C3%BCzey/y%C3%BCzey%20temizleme-okyanus%20esintisi/y%C3%BCzey%20temizleme-okyanus%20esintisi04.jpg',
+];
+const DETAILS = {
+  'ped-gece': {
+    desc: 'Kadınların en özel günlerinde maksimum konfor ve güvenlik sunan Giggles Lady Soft Gece pedi, %100 organik pamuk içeriğiyle hassas ciltler için özenle tasarlandı. Geniş ve uzun yapısıyla geceleri tam anlamıyla korurken, pamuksu yüzeyi sayesinde cildinizdeki tahrişi en aza indirir. Tekli kumaş ambalajı ile hijyen güvencesi sağlar.',
+    features: PED_FEATS, gallery: PED_GAL
+  },
+  'ped-uzun': {
+    desc: 'Günün her anında güvenle kullanabileceğiniz Giggles Lady Soft Uzun ped, uzun yapısıyla aktif günlerinizde tam koruma sunar. %0 parfüm ve klor içermeyen formülü ile hassas ciltlere özel geliştirilmiştir. Anatomik yapısı bedeninize mükemmel uyum sağlar.',
+    features: PED_FEATS, gallery: PED_GAL
+  },
+  'ped-normal': {
+    desc: 'Günlük kullanım için ideal olan Giggles Lady Soft Normal ped, %100 organik pamuk içeriğiyle cildinizdeki tahrişi önler. Anında kuruluk sağlayan emici tabakası sayesinde kendinizi hep taze hissedebilirsiniz. Hipolalerjenik formülü ile hassas ciltler için güvenle kullanılabilir.',
+    features: PED_FEATS, gallery: PED_GAL
+  },
+  'ped-mix': {
+    desc: 'Farklı akış yoğunluklarına özel tasarlanmış Gece, Uzun ve Normal pedleri bir arada sunan Mix Paket, tüm gereksinimlerinizi tek pakette karşılar. %100 organik pamuk içeriği ve hipolalerjenik formülüyle hassas ciltlere uygun olan bu paket, hem pratik hem de ekonomiktir.',
+    features: PED_FEATS, gallery: [
+      'https://cdn1.xmlbankasi.com/p1/ahoktrapacwj/image/data/resimler/giggles-lady-soft-hijyenik-ped-normal-mega-firsat-paketi-192-adet-1383.jpg',
+      'https://cdn1.xmlbankasi.com/p1/ahoktrapacwj/image/data/resimler/giggles-lady-soft-hijyenik-ped-normal-mega-firsat-paketi-192-adet-1384.jpg',
+      'https://cdn1.xmlbankasi.com/p1/ahoktrapacwj/image/data/resimler/giggles-lady-soft-hijyenik-ped-normal-mega-firsat-paketi-192-adet-1389.jpg',
+      ...PED_GAL
+    ]
+  },
+  'mendil-sabun': {
+    desc: 'Sirke, Karbonat ve Limon Yağı\'nın mucizevi etkisini modern yaşamın hızıyla buluşturan Giggles XXL Beyaz Sabun Ferahlığı mendili, evinizin her köşesinde pırıl pırıl temizlik sağlar. İz bırakmaz, hızlı kurur ve ferahlatıcı beyaz sabun kokusuyla her temizliği keyifli kılar. Mutfak tezgahından banyo karolarına, cam ve aynaları lekelere karşı korur.',
+    features: MENDIL_FEATS, gallery: SABUN_GAL
+  },
+  'mendil-cicek': {
+    desc: 'Çiçek Bahçesi\'nin taze ve hoş kokusuyla evinizde doğal bir ferahlık yaratın. Giggles XXL Çiçek Bahçesi mendili, güçlü doğal formülüyle ev yüzeylerini derinlemesine temizler. Antistatik yapısı toz birikmesini önler, iz ve tüy bırakmayan formülüyle cam ve aynaları tertemiz bırakır.',
+    features: MENDIL_FEATS, gallery: CICEK_GAL
+  },
+  'mendil-okyanus': {
+    desc: 'Okyanus Esintisi\'nin serinletici kokusuyla temizliği keyifli bir deneyime dönüştürün. Giggles XXL Okyanus Esintisi mendili, XXL boyutuyla geniş yüzeyleri tek hamlede temizler. Sirke, karbonat ve limon yağı içeren doğal formülü kimyasal kokuları ortadan kaldırır, durulamaya gerek kalmaz.',
+    features: MENDIL_FEATS, gallery: OKYAN_GAL
+  },
+  'havlu-purewater': {
+    desc: 'TS EN ISO 3696 standartlarını karşılayan %99,9 saf su içeriğiyle üretilen Giggles Pure Water bebek ıslak havlusu, bebeğinizin hassas cildine en nazik dokunuşu sunar. Alkol, parfüm, renk maddesi, PEG ve SLS/SLES içermeyen formülü ile 0-3 yaş arası bebekler için dermatologlar tarafından test edilmiş ve onaylanmıştır.',
+    features: ['%99,9 Saf Su formülü (TS EN ISO 3696)','Alkol ve parfüm içermez','Renk maddesi, PEG, SLS/SLES içermez','pH dengeli ve göz yakmayan formül','Ultra yumuşak ve kalın doku','Nem koruma kapaklı ambalaj','0-3 yaş arası bebekler için uygundur','Dermatologlar tarafından test edilmiştir'],
+    gallery: [
+      'https://online.giggles.com.tr/storage/251124-142246.png',
+      'https://online.giggles.com.tr/storage/251124-142125-4.png',
+      'https://online.giggles.com.tr/storage/251124-142125-5.png',
+      'https://online.giggles.com.tr/storage/251124-142125-6.png',
+      'https://online.giggles.com.tr/storage/251124-142125-7.png',
+    ]
+  },
+  'havlu-havlumix': {
+    desc: 'Giggles Islak Havlu Set, ailenizin tüm temizlik ihtiyaçlarını karşılamak için tasarlanmış pratik çoklu paket seçeneğidir. Nem koruma kapaklı ambalajı ile son mendile kadar tazeliğini korur. Her yaş grubuna uygun yumuşak dokunuşuyla günlük kullanımda vazgeçilmez bir yardımcıdır.',
+    features: ['Her yaş grubu için yumuşak ve nazik doku','Nem koruma kapaklı ambalaj','Bebek ve aile kullanımına uygun','72\'lik paket başına ekonomik çözüm','Dermatologlar tarafından test edilmiştir'],
+    gallery: [
+      'https://online.giggles.com.tr/thumbs/urunler/islak-havlu/GIGMIXIH288MIX_300_300.jpg',
+      'https://cdn1.xmlbankasi.com/p1/ahoktrapacwj/image/data/resimler/giggles-islak-mendil-islak-havlu-72x4-toplam-288-yaprak-861.jpg',
+      'https://cdn1.xmlbankasi.com/p1/ahoktrapacwj/image/data/resimler/giggles-islak-havlu-set-72-li-4-paket-288-mendil-949.jpg',
+      'https://cdn1.xmlbankasi.com/p1/ahoktrapacwj/image/data/resimler/giggles-islak-mendil-islak-havlu-72x8-toplam-576-yaprak-866.jpg',
+      'https://cdn1.xmlbankasi.com/p1/ahoktrapacwj/image/data/resimler/giggles-islak-mendil-islak-havlu-72x12-toplam-864-yaprak-872.jpg',
+    ]
+  },
+  'havlu-yesilcay': {
+    desc: 'Yeşil Çay özlerinin antioksidan gücünü B5 ve E vitaminiyle buluşturan Giggles Yeşilçay ıslak havlusu, bebeğinizin cildini temizlerken aynı zamanda besler ve korur. Bal peteği dokulu yüzeyi etkili temizlik sağlarken, alkol ve paraben içermeyen formülü hassas ciltler için idealdir.',
+    features: ['Yeşil Çay özleri — antioksidan güç','B5 ve E vitamini zenginleştirilmiş','Bal peteği dokusu — etkili temizlik','Alkol ve paraben içermez','Dermatologlar tarafından test edilmiştir','Bebek hassas cildine uygun'],
+    gallery: [
+      'https://online.giggles.com.tr/thumbs/urunler/islak-havlu/yesilcay-72-4-1_300_300.jpg',
+      'https://online.giggles.com.tr/thumbs/urunler/islak-havlu/yesilcay-72-8_300_300.jpg',
+      'https://online.giggles.com.tr/storage/urunler/islak-havlu/yesilcay-72-4-1.jpg',
+    ]
+  }
+};
+
+function openDetail(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const d = DETAILS[`${p.type}-${p.cat}`] || {};
+  document.getElementById('pd-cat-badge').textContent = BADGE[p.cat] || p.cat;
+  document.getElementById('pd-prod-title').textContent = p.name;
+  document.getElementById('pd-prod-pack').textContent = `${p.pack} · ${p.adet} Adet`;
+  document.getElementById('pd-prod-desc').textContent = d.desc || '';
+  document.getElementById('pd-features-list').innerHTML = (d.features || []).map(f =>
+    `<div class="pd-feat-item">${f}</div>`
+  ).join('');
+  const allImgs = [p.img, ...(d.gallery || [])];
+  const imgs = [...new Set(allImgs)];
+  const mainPhoto = document.getElementById('pd-main-photo');
+  mainPhoto.src = imgs[0];
+  mainPhoto.onerror = function() { this.src = ''; this.style.display = 'none'; };
+  document.getElementById('pd-thumbs').innerHTML = imgs.map((url, i) =>
+    `<div class="pd-thumb ${i===0?'active':''}" onclick="setDetailImg(this,'${url.replace(/'/g,"\\'")}')">
+      <img src="${url}" alt="" onerror="this.closest('.pd-thumb').style.display='none'">
+    </div>`
+  ).join('');
+  document.getElementById('pd-add-btn').onclick = () => { addToCart(id); closeDetail(); };
+  document.getElementById('pd-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('pd-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function setDetailImg(thumb, url) {
+  document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+  const img = document.getElementById('pd-main-photo');
+  img.style.opacity = '0';
+  img.style.display = 'block';
+  setTimeout(() => { img.src = url; img.style.opacity = '1'; }, 160);
 }
 
 window.addEventListener('scroll', () => {
