@@ -657,7 +657,7 @@
       <div class="auth-s">Hesabınıza giriş yapın</div>
       <div class="auth-err-box" id="giris-err"></div>
       <form class="auth-form" onsubmit="doLogin(event)">
-        <input class="auth-inp" type="email" id="giris-email" placeholder="E-posta adresiniz" required autocomplete="email">
+        <input class="auth-inp" type="tel" id="giris-tel" placeholder="Telefon numaranız (05XX XXX XX XX)" required autocomplete="tel">
         <input class="auth-inp" type="password" id="giris-pass" placeholder="Şifreniz" required autocomplete="current-password">
         <button type="submit" class="auth-sub-btn" id="giris-btn">Giriş Yap</button>
       </form>
@@ -672,8 +672,7 @@
           <input class="auth-inp" type="text" id="kayit-ad" placeholder="Adınız" required>
           <input class="auth-inp" type="text" id="kayit-soyad" placeholder="Soyadınız" required>
         </div>
-        <input class="auth-inp" type="email" id="kayit-email" placeholder="E-posta adresiniz" required autocomplete="email">
-        <input class="auth-inp" type="tel" id="kayit-tel" placeholder="Telefon (05XX XXX XX XX)">
+        <input class="auth-inp" type="tel" id="kayit-tel" placeholder="Telefon numaranız (05XX XXX XX XX)" required autocomplete="tel">
         <input class="auth-inp" type="password" id="kayit-pass" placeholder="Şifre (en az 6 karakter)" required minlength="6" autocomplete="new-password">
         <button type="submit" class="auth-sub-btn" id="kayit-btn">Üye Ol</button>
       </form>
@@ -822,7 +821,7 @@ function updateAuthUI(user) {
   const label = document.getElementById('auth-btn-label');
   if (user) {
     const meta = user.user_metadata || {};
-    const name = (meta.ad || user.email.split('@')[0]);
+    const name = (meta.ad || meta.telefon || '');
     label.textContent = name;
     btn.classList.add('user-in');
   } else {
@@ -852,18 +851,23 @@ function switchAuthTab(t) {
   document.getElementById('pane-kayit').style.display = t==='kayit' ? '' : 'none';
 }
 
+function telToEmail(tel) {
+  return tel.replace(/\D/g, '') + '@ladysoft.tr';
+}
+
 async function doLogin(e) {
   e.preventDefault();
   const btn = document.getElementById('giris-btn');
   const err = document.getElementById('giris-err');
   btn.disabled = true; btn.textContent = 'Giriş yapılıyor…';
   err.classList.remove('show');
+  const tel = document.getElementById('giris-tel').value.trim();
   const { data, error } = await db.auth.signInWithPassword({
-    email: document.getElementById('giris-email').value.trim(),
+    email: telToEmail(tel),
     password: document.getElementById('giris-pass').value
   });
   if (error) {
-    err.textContent = 'E-posta veya şifre hatalı.';
+    err.textContent = 'Telefon numarası veya şifre hatalı.';
     err.classList.add('show');
     btn.disabled = false; btn.textContent = 'Giriş Yap';
   } else {
@@ -879,17 +883,18 @@ async function doRegister(e) {
   const err = document.getElementById('kayit-err');
   btn.disabled = true; btn.textContent = 'Kaydediliyor…';
   err.classList.remove('show');
+  const tel = document.getElementById('kayit-tel').value.trim();
   const { data, error } = await db.auth.signUp({
-    email: document.getElementById('kayit-email').value.trim(),
+    email: telToEmail(tel),
     password: document.getElementById('kayit-pass').value,
     options: { data: {
       ad: document.getElementById('kayit-ad').value.trim(),
       soyad: document.getElementById('kayit-soyad').value.trim(),
-      telefon: document.getElementById('kayit-tel').value.trim()
+      telefon: tel
     }}
   });
   if (error) {
-    err.textContent = error.message.includes('already') ? 'Bu e-posta zaten kayıtlı.' : 'Kayıt sırasında hata oluştu.';
+    err.textContent = error.message.includes('already') ? 'Bu telefon numarası zaten kayıtlı.' : 'Kayıt sırasında hata oluştu.';
     err.classList.add('show');
     btn.disabled = false; btn.textContent = 'Üye Ol';
   } else {
@@ -918,8 +923,8 @@ function toggleAccPanel() {
 
 function populateAccPanel() {
   const meta = currentUser.user_metadata || {};
-  document.getElementById('acc-uname').textContent  = `${meta.ad||''} ${meta.soyad||''}`.trim() || currentUser.email;
-  document.getElementById('acc-uemail').textContent = currentUser.email;
+  document.getElementById('acc-uname').textContent  = `${meta.ad||''} ${meta.soyad||''}`.trim() || meta.telefon || '';
+  document.getElementById('acc-uemail').textContent = meta.telefon || '';
   loadUserOrders();
 }
 
@@ -1036,7 +1041,6 @@ function showOrderForm() {
   const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
   setVal('o-ad',      m.ad);
   setVal('o-soyad',   m.soyad);
-  setVal('o-email',   currentUser.email);
   setVal('o-telefon', m.telefon);
   document.getElementById('order-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
