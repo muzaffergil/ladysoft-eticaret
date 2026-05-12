@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -27,9 +28,16 @@
     ::-webkit-scrollbar-track { background: var(--cream); }
     ::-webkit-scrollbar-thumb { background: var(--blush); border-radius: 3px; }
 
+    /* ── TOP BAR ── */
+    .top-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 101; background: var(--dark); height: 36px; display: flex; align-items: center; justify-content: center; gap: 2rem; padding: 0 1rem; }
+    .top-bar-item { display: flex; align-items: center; gap: .38rem; color: rgba(255,255,255,.68); font-size: .73rem; }
+    .top-bar-item a { color: rgba(255,255,255,.68); text-decoration: none; transition: color .15s; }
+    .top-bar-item a:hover { color: white; }
+    .top-bar-item strong { color: rgba(255,255,255,.9); font-weight: 600; }
+
     /* ── HEADER ── */
     .header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      position: fixed; top: 36px; left: 0; right: 0; z-index: 100;
       padding: 0 2.5rem; height: 70px;
       display: flex; align-items: center; justify-content: space-between;
       background: rgba(255,250,248,0.92); backdrop-filter: blur(16px);
@@ -50,8 +58,65 @@
     .cart-badge { position: absolute; top: -5px; right: -5px; width: 19px; height: 19px; border-radius: 50%; background: var(--rose); color: #fff; font-size: .6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0); transition: all .35s cubic-bezier(.34,1.56,.64,1); border: 2px solid var(--ivory); }
     .cart-badge.show { opacity: 1; transform: scale(1); }
 
+    /* ── AUTH BTN ── */
+    .btn-auth { display: flex; align-items: center; gap: .38rem; padding: .42rem .9rem; border-radius: 2rem; border: 1.5px solid var(--border); background: var(--ivory); cursor: pointer; font-size: .76rem; font-weight: 500; color: var(--dark); font-family: 'DM Sans', sans-serif; transition: all .2s; white-space: nowrap; }
+    .btn-auth:hover { border-color: var(--rose); color: var(--rose); background: var(--blush-light); }
+    .btn-auth.user-in { background: var(--rose); color: white; border-color: var(--rose); }
+    .btn-auth.user-in:hover { background: var(--rose-dark); border-color: var(--rose-dark); }
+
+    /* ── WHATSAPP FLOAT ── */
+    .wa-float { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 300; width: 52px; height: 52px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(37,211,102,.45); transition: transform .2s; text-decoration: none; }
+    .wa-float:hover { transform: scale(1.1); }
+
+    /* ── AUTH MODAL ── */
+    .auth-modal { position: fixed; inset: 0; z-index: 700; display: flex; align-items: center; justify-content: center; padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .auth-modal.open { opacity: 1; pointer-events: all; }
+    .auth-modal-bg { position: absolute; inset: 0; background: rgba(20,10,15,.55); backdrop-filter: blur(8px); }
+    .auth-box { position: relative; background: white; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 32px 80px rgba(0,0,0,.22); transform: translateY(20px) scale(.97); transition: transform .35s cubic-bezier(.34,1.3,.64,1); overflow: hidden; max-height: 90vh; overflow-y: auto; }
+    .auth-modal.open .auth-box { transform: translateY(0) scale(1); }
+    .auth-tabs { display: flex; border-bottom: 1px solid var(--border); }
+    .auth-tab { flex: 1; padding: 1rem; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 500; cursor: pointer; color: var(--text-muted); border-bottom: 2.5px solid transparent; margin-bottom: -1px; transition: all .2s; }
+    .auth-tab.active { color: var(--rose); border-bottom-color: var(--rose); }
+    .auth-pane { padding: 1.75rem 1.75rem 2rem; }
+    .auth-box-x { position: absolute; top: .85rem; right: .85rem; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: .95rem; transition: all .2s; z-index: 5; }
+    .auth-box-x:hover { background: var(--blush-light); color: var(--rose); }
+    .auth-h { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 600; color: var(--dark); margin-bottom: .2rem; }
+    .auth-s { font-size: .82rem; color: var(--text-muted); margin-bottom: 1.3rem; }
+    .auth-form { display: flex; flex-direction: column; gap: .78rem; }
+    .auth-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+    .auth-inp { width: 100%; padding: .68rem .9rem; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: .88rem; color: var(--dark); background: var(--ivory); outline: none; transition: border-color .2s; box-sizing: border-box; }
+    .auth-inp:focus { border-color: var(--rose-light); box-shadow: 0 0 0 3px rgba(193,59,90,.07); }
+    .auth-sub-btn { width: 100%; padding: .88rem; background: var(--rose); color: white; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: .92rem; font-weight: 600; cursor: pointer; transition: all .2s; margin-top: .15rem; }
+    .auth-sub-btn:hover:not(:disabled) { background: var(--rose-dark); }
+    .auth-sub-btn:disabled { opacity: .6; cursor: not-allowed; }
+    .auth-err-box { font-size: .79rem; color: #DC2626; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px; padding: .5rem .8rem; display: none; }
+    .auth-err-box.show { display: block; }
+    .auth-switch-row { text-align: center; font-size: .79rem; color: var(--text-muted); margin-top: .9rem; }
+    .auth-switch-row a { color: var(--rose); cursor: pointer; font-weight: 500; }
+
+    /* ── ACCOUNT PANEL ── */
+    .acc-panel { position: fixed; top: 0; right: 0; width: 370px; height: 100%; background: var(--ivory); z-index: 201; transform: translateX(100%); transition: transform .42s cubic-bezier(.32,0,.15,1); display: flex; flex-direction: column; box-shadow: -16px 0 60px rgba(0,0,0,.1); }
+    .acc-panel.open { transform: translateX(0); }
+    .acc-head { padding: 1.4rem 1.75rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .acc-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--dark); }
+    .acc-x { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--border); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all .2s; }
+    .acc-x:hover { background: var(--blush-light); color: var(--rose); border-color: var(--blush); }
+    .acc-body { flex: 1; overflow-y: auto; padding: 1.5rem 1.75rem; }
+    .acc-user-card { background: linear-gradient(135deg,var(--rose),var(--rose-dark)); border-radius: 18px; padding: 1.4rem; color: white; margin-bottom: 1.5rem; }
+    .acc-avatar { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: .8rem; }
+    .acc-uname { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; }
+    .acc-uemail { font-size: .75rem; opacity: .72; margin-top: .1rem; }
+    .acc-sec-t { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .85rem; }
+    .acc-order { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: .7rem; }
+    .acc-order-date { font-size: .72rem; color: var(--text-muted); margin-bottom: .28rem; }
+    .acc-order-items { font-size: .82rem; color: var(--dark); font-weight: 500; line-height: 1.45; }
+    .acc-order-badge { display: inline-flex; align-items: center; gap: .3rem; font-size: .7rem; font-weight: 600; background: #FEF9C3; color: #92400E; padding: .2rem .6rem; border-radius: 2rem; margin-top: .4rem; }
+    .acc-empty-t { text-align: center; padding: 2rem 0; font-size: .86rem; color: var(--text-muted); }
+    .acc-logout { width: 100%; padding: .78rem; background: none; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: .88rem; color: var(--text-muted); cursor: pointer; transition: all .2s; margin-top: 1.5rem; }
+    .acc-logout:hover { border-color: #DC2626; color: #DC2626; background: #FEF2F2; }
+
     /* ── HERO ── */
-    .hero { min-height: 100vh; padding-top: 70px; display: flex; align-items: center; background: linear-gradient(135deg, #fff5f7 0%, #faf0f8 40%, #f4ecf8 100%); position: relative; overflow: hidden; }
+    .hero { min-height: 100vh; padding-top: 106px; display: flex; align-items: center; background: linear-gradient(135deg, #fff5f7 0%, #faf0f8 40%, #f4ecf8 100%); position: relative; overflow: hidden; }
     .orb { position: absolute; border-radius: 50%; pointer-events: none; animation: orbFloat ease-in-out infinite; }
     .orb-1 { width: 560px; height: 560px; background: radial-gradient(circle, rgba(242,190,200,.45) 0%, transparent 70%); top: -100px; right: -80px; animation-duration: 9s; }
     .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(201,184,212,.38) 0%, transparent 70%); bottom: -80px; left: -60px; animation-duration: 11s; animation-direction: reverse; }
@@ -314,7 +379,11 @@
       .order-modal-inner { max-width: 500px; }
     }
     @media (max-width: 580px) {
+      .top-bar { gap: 1rem; }
+      .top-bar-item:last-child { display: none; }
+      .header { top: 36px; padding: 0 1.1rem; }
       .cart-sidebar { width: 100%; }
+      .acc-panel { width: 100%; }
       .footer-grid { grid-template-columns: 1fr; }
       .promo-packages { grid-template-columns: 1fr; }
       .cat-tabs { flex-wrap: wrap; border-radius: 1rem; }
@@ -358,6 +427,12 @@
 </head>
 <body>
 
+<div class="top-bar">
+  <div class="top-bar-item">📞 <a href="tel:05058876043"><strong>0505 887 60 43</strong></a></div>
+  <div class="top-bar-item">💬 <a href="https://wa.me/905058876043" target="_blank">WhatsApp</a></div>
+  <div class="top-bar-item" id="top-bar-ship">🚚 Tüm siparişlerde ücretsiz kargo</div>
+</div>
+
 <header class="header" id="header">
   <a href="#" class="logo">Lady<em>Soft</em><span class="by-btl">by BTL</span></a>
   <nav><ul>
@@ -366,8 +441,9 @@
     <li><a href="#footer">İletişim</a></li>
   </ul></nav>
   <div class="header-actions">
-    <button class="icon-btn" title="Favoriler">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <button class="btn-auth" id="auth-header-btn" onclick="onAuthBtnClick()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span id="auth-btn-label">Giriş Yap</span>
     </button>
     <button class="icon-btn" onclick="toggleCart()" title="Sepetim">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
@@ -486,8 +562,9 @@
     <div>
       <div class="f-col-t">İletişim</div>
       <ul class="f-links">
-        <li><a href="#">info@ladysoft.com.tr</a></li>
-        <li><a href="#">0850 XXX XX XX</a></li>
+        <li><a href="mailto:info@ladysoft.com.tr">info@ladysoft.com.tr</a></li>
+        <li><a href="tel:05058876043">0505 887 60 43</a></li>
+        <li><a href="https://wa.me/905058876043" target="_blank">WhatsApp</a></li>
         <li><a href="#">Pzt — Cum, 09–18</a></li>
       </ul>
     </div>
@@ -561,6 +638,71 @@
     </div>
   </div>
 </div>
+<!-- WhatsApp Float -->
+<a href="https://wa.me/905058876043" target="_blank" class="wa-float" title="WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- Auth Modal -->
+<div class="auth-modal" id="auth-modal">
+  <div class="auth-modal-bg" onclick="closeAuthModal()"></div>
+  <div class="auth-box">
+    <button class="auth-box-x" onclick="closeAuthModal()">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-giris" onclick="switchAuthTab('giris')">Giriş Yap</button>
+      <button class="auth-tab" id="tab-kayit" onclick="switchAuthTab('kayit')">Üye Ol</button>
+    </div>
+    <div id="pane-giris" class="auth-pane">
+      <div class="auth-h">Hoş geldiniz</div>
+      <div class="auth-s">Hesabınıza giriş yapın</div>
+      <div class="auth-err-box" id="giris-err"></div>
+      <form class="auth-form" onsubmit="doLogin(event)">
+        <input class="auth-inp" type="email" id="giris-email" placeholder="E-posta adresiniz" required autocomplete="email">
+        <input class="auth-inp" type="password" id="giris-pass" placeholder="Şifreniz" required autocomplete="current-password">
+        <button type="submit" class="auth-sub-btn" id="giris-btn">Giriş Yap</button>
+      </form>
+      <div class="auth-switch-row">Hesabınız yok mu? <a onclick="switchAuthTab('kayit')">Üye Ol</a></div>
+    </div>
+    <div id="pane-kayit" class="auth-pane" style="display:none">
+      <div class="auth-h">Üye Ol</div>
+      <div class="auth-s">Hızlıca hesap oluşturun</div>
+      <div class="auth-err-box" id="kayit-err"></div>
+      <form class="auth-form" onsubmit="doRegister(event)">
+        <div class="auth-row2">
+          <input class="auth-inp" type="text" id="kayit-ad" placeholder="Adınız" required>
+          <input class="auth-inp" type="text" id="kayit-soyad" placeholder="Soyadınız" required>
+        </div>
+        <input class="auth-inp" type="email" id="kayit-email" placeholder="E-posta adresiniz" required autocomplete="email">
+        <input class="auth-inp" type="tel" id="kayit-tel" placeholder="Telefon (05XX XXX XX XX)">
+        <input class="auth-inp" type="password" id="kayit-pass" placeholder="Şifre (en az 6 karakter)" required minlength="6" autocomplete="new-password">
+        <button type="submit" class="auth-sub-btn" id="kayit-btn">Üye Ol</button>
+      </form>
+      <div class="auth-switch-row">Hesabınız var mı? <a onclick="switchAuthTab('giris')">Giriş Yap</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- Account Panel -->
+<div class="cart-overlay" id="acc-overlay" onclick="toggleAccPanel()"></div>
+<div class="acc-panel" id="acc-panel">
+  <div class="acc-head">
+    <span class="acc-title">Hesabım</span>
+    <button class="acc-x" onclick="toggleAccPanel()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="acc-body">
+    <div class="acc-user-card">
+      <div class="acc-avatar">👤</div>
+      <div class="acc-uname" id="acc-uname">—</div>
+      <div class="acc-uemail" id="acc-uemail">—</div>
+    </div>
+    <div class="acc-sec-t">Sipariş Geçmişim</div>
+    <div id="acc-orders"><div class="acc-empty-t">Yükleniyor…</div></div>
+    <button class="acc-logout" onclick="doLogout()">Çıkış Yap</button>
+  </div>
+</div>
+
 <!-- Product Detail Modal -->
 <div class="pd-modal" id="pd-modal">
   <div class="pd-modal-bg" onclick="closeDetail()"></div>
@@ -589,11 +731,13 @@
 <div id="toast-zone"></div>
 
 <script>
-// ── DATA ──
-const SUPABASE_URL = 'https://dsoemsgeyhyucndlobez.supabase.co';
+// ── SUPABASE CLIENT ──
+const SUPABASE_URL  = 'https://dsoemsgeyhyucndlobez.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzb2Vtc2dleWh5dWNuZGxvYmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTY5ODYsImV4cCI6MjA5NDA3Mjk4Nn0.5hzVc3gReEdX56aj7VMaMF-RAuaq-kt2i7IGr-9Aj10';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-let PRODUCTS = [];
+let PRODUCTS    = [];
+let currentUser = null;
 
 const TABS = {
   ped:    { accent:'--rose',  heading:'Hijyenik Ped',    sub:'Gece, uzun, normal veya mix paketlerimizle ihtiyacınıza en uygun seçeneği bulun.', filters:[{val:'all',lbl:'Tümü'},{val:'gece',lbl:'🌙 Gece'},{val:'uzun',lbl:'📏 Uzun'},{val:'normal',lbl:'🌸 Normal'},{val:'mix',lbl:'✨ Mix'}] },
@@ -671,23 +815,156 @@ function renderProducts() {
   `).join('');
 }
 
-// Init — load from Supabase
+// ── AUTH ──
+function updateAuthUI(user) {
+  currentUser = user;
+  const btn   = document.getElementById('auth-header-btn');
+  const label = document.getElementById('auth-btn-label');
+  if (user) {
+    const meta = user.user_metadata || {};
+    const name = (meta.ad || user.email.split('@')[0]);
+    label.textContent = name;
+    btn.classList.add('user-in');
+  } else {
+    label.textContent = 'Giriş Yap';
+    btn.classList.remove('user-in');
+  }
+}
+
+function onAuthBtnClick() {
+  if (currentUser) { toggleAccPanel(); }
+  else { openAuthModal(); }
+}
+
+function openAuthModal(tab) {
+  if (tab) switchAuthTab(tab);
+  document.getElementById('auth-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function switchAuthTab(t) {
+  document.getElementById('tab-giris').classList.toggle('active', t==='giris');
+  document.getElementById('tab-kayit').classList.toggle('active', t==='kayit');
+  document.getElementById('pane-giris').style.display = t==='giris' ? '' : 'none';
+  document.getElementById('pane-kayit').style.display = t==='kayit' ? '' : 'none';
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('giris-btn');
+  const err = document.getElementById('giris-err');
+  btn.disabled = true; btn.textContent = 'Giriş yapılıyor…';
+  err.classList.remove('show');
+  const { data, error } = await db.auth.signInWithPassword({
+    email: document.getElementById('giris-email').value.trim(),
+    password: document.getElementById('giris-pass').value
+  });
+  if (error) {
+    err.textContent = 'E-posta veya şifre hatalı.';
+    err.classList.add('show');
+    btn.disabled = false; btn.textContent = 'Giriş Yap';
+  } else {
+    updateAuthUI(data.user);
+    closeAuthModal();
+    toast('✓ Hoş geldiniz!');
+  }
+}
+
+async function doRegister(e) {
+  e.preventDefault();
+  const btn = document.getElementById('kayit-btn');
+  const err = document.getElementById('kayit-err');
+  btn.disabled = true; btn.textContent = 'Kaydediliyor…';
+  err.classList.remove('show');
+  const { data, error } = await db.auth.signUp({
+    email: document.getElementById('kayit-email').value.trim(),
+    password: document.getElementById('kayit-pass').value,
+    options: { data: {
+      ad: document.getElementById('kayit-ad').value.trim(),
+      soyad: document.getElementById('kayit-soyad').value.trim(),
+      telefon: document.getElementById('kayit-tel').value.trim()
+    }}
+  });
+  if (error) {
+    err.textContent = error.message.includes('already') ? 'Bu e-posta zaten kayıtlı.' : 'Kayıt sırasında hata oluştu.';
+    err.classList.add('show');
+    btn.disabled = false; btn.textContent = 'Üye Ol';
+  } else {
+    updateAuthUI(data.user);
+    closeAuthModal();
+    toast('✓ Üyeliğiniz oluşturuldu, hoş geldiniz!');
+  }
+}
+
+async function doLogout() {
+  await db.auth.signOut();
+  updateAuthUI(null);
+  toggleAccPanel();
+  toast('Çıkış yapıldı.');
+}
+
+// ── ACCOUNT PANEL ──
+function toggleAccPanel() {
+  const overlay = document.getElementById('acc-overlay');
+  const panel   = document.getElementById('acc-panel');
+  const isOpen  = panel.classList.toggle('open');
+  overlay.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+  if (isOpen && currentUser) { populateAccPanel(); }
+}
+
+function populateAccPanel() {
+  const meta = currentUser.user_metadata || {};
+  document.getElementById('acc-uname').textContent  = `${meta.ad||''} ${meta.soyad||''}`.trim() || currentUser.email;
+  document.getElementById('acc-uemail').textContent = currentUser.email;
+  loadUserOrders();
+}
+
+async function loadUserOrders() {
+  const el = document.getElementById('acc-orders');
+  el.innerHTML = '<div class="acc-empty-t">Yükleniyor…</div>';
+  const { data, error } = await db.from('orders')
+    .select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  if (error || !data?.length) {
+    el.innerHTML = '<div class="acc-empty-t">Henüz siparişiniz yok.</div>'; return;
+  }
+  el.innerHTML = data.map(o => {
+    const items = (o.items||[]).map(i => `${i.name} × ${i.qty}`).join(', ');
+    const date  = new Date(o.created_at).toLocaleDateString('tr-TR', {day:'2-digit',month:'long',year:'numeric'});
+    return `<div class="acc-order">
+      <div class="acc-order-date">${date}</div>
+      <div class="acc-order-items">${items}</div>
+      <div class="acc-order-badge">⏳ ${o.durum||'Beklemede'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── PRODUCTS ──
 async function loadProducts() {
   document.getElementById('products-grid').innerHTML =
-    '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);font-family:var(--font-body)">Ürünler yükleniyor…</div>';
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*&order=id`, {
-      headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }
-    });
-    PRODUCTS = await res.json();
-  } catch(e) {
+    '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted)">Ürünler yükleniyor…</div>';
+  const { data, error } = await db.from('products').select('*').order('id');
+  if (error || !data) {
     document.getElementById('products-grid').innerHTML =
       '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted)">Ürünler yüklenemedi.</div>';
     return;
   }
+  PRODUCTS = data;
   renderFilterBar();
   renderProducts();
 }
+
+// ── AUTH STATE INIT ──
+db.auth.getSession().then(({ data: { session } }) => {
+  updateAuthUI(session?.user || null);
+});
+db.auth.onAuthStateChange((_, session) => {
+  updateAuthUI(session?.user || null);
+});
+
 loadProducts();
 
 // ── CART ──
@@ -750,9 +1027,17 @@ function updateCartUI() {
 function showOrderForm() {
   const items = Object.values(cart);
   if (!items.length) return;
+  if (!currentUser) { openAuthModal(); return; }
   document.getElementById('om-items').innerHTML = items.map(i =>
     `<div class="om-item"><span>${i.name} · ${i.pack}</span><span>${i.qty} adet</span></div>`
   ).join('');
+  // Pre-fill from user metadata
+  const m = currentUser.user_metadata || {};
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  setVal('o-ad',      m.ad);
+  setVal('o-soyad',   m.soyad);
+  setVal('o-email',   currentUser.email);
+  setVal('o-telefon', m.telefon);
   document.getElementById('order-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -782,17 +1067,12 @@ async function submitOrder(e) {
   };
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON,
-        'Authorization': `Bearer ${SUPABASE_ANON}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(data)
+    const { error: dbErr } = await db.from('orders').insert({
+      ...data,
+      user_id:    currentUser?.id    || null,
+      user_email: currentUser?.email || null
     });
-    if (!res.ok) throw new Error('db error');
+    if (dbErr) throw dbErr;
 
     // E-posta bildirimi (FormSubmit.co)
     const fd = new FormData();
